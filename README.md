@@ -42,7 +42,7 @@ A comprehensive Go application for benchmarking search and sorting algorithms wi
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/guicybercode/algorithm-tool
 cd algorithm-benchmark
 ```
 
