@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Benchmark Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .chart-container {
+            margin-top: 20px;
+            height: 400px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Algorithm Benchmark Tool</h1>
+        
+        <div class="section">
+            <h2>Single Algorithm Benchmark</h2>
+            <form id="singleBenchmarkForm">
+                <div class="form-group">
+                    <label for="algorithm">Algorithm:</label>
+                    <select id="algorithm" name="algorithm">
+                        <option value="linear_search">Linear Search</option>
+                        <option value="binary_search">Binary Search</option>
+                        <option value="bubble_sort">Bubble Sort</option>
+                        <option value="insertion_sort">Insertion Sort</option>
+                        <option value="merge_sort">Merge Sort</option>
+                        <option value="quick_sort">Quick Sort</option>
+                        <option value="heap_sort">Heap Sort</option>
+                        <option value="native_sort">Native Sort (Go)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="arrayType">Array Type:</label>
+                    <select id="arrayType" name="arrayType">
+                        <option value="random">Random</option>
+                        <option value="sorted">Sorted</option>
+                        <option value="reverse">Reverse Sorted</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="size">Array Size:</label>
+                    <input type="number" id="size" name="size" value="1000" min="100" max="1000000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="runs">Number of Runs:</label>
+                    <input type="number" id="runs" name="runs" value="5" min="1" max="100">
+                </div>
+                
+                <button type="submit">Run Benchmark</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h2>Comprehensive Benchmark</h2>
+            <p>Run all algorithms with multiple array sizes and types</p>
+            <form id="comprehensiveBenchmarkForm">
+                <div class="form-group">
+                    <label for="comprehensiveRuns">Number of Runs:</label>
+                    <input type="number" id="comprehensiveRuns" name="runs" value="3" min="1" max="50">
+                </div>
+                
+                <button type="submit">Run All Benchmarks</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h2>Results</h2>
+            <div id="status"></div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Running benchmark...</p>
+            </div>
+            <div id="results"></div>
+            <div class="chart-container">
+                <canvas id="resultsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Export Results</h2>
+            <button onclick="exportCSV()">Export to CSV</button>
+            <button onclick="exportMarkdown()">Export to Markdown</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+        let currentResults = [];
+
+        document.getElementById('singleBenchmarkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            runSingleBenchmark();
+        });
+
+        document.getElementById('comprehensiveBenchmarkForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            runComprehensiveBenchmark();
+        });
+
+        async function runSingleBenchmark() {
+            const formData = new FormData(document.getElementById('singleBenchmarkForm'));
+            const data = {
+                algorithm: formData.get('algorithm'),
+                arrayType: formData.get('arrayType'),
+                size: parseInt(formData.get('size')),
+                runs: parseInt(formData.get('runs'))
+            };
+
+            showLoading(true);
+            showStatus('Running benchmark...', 'info');
+
+            try {
+                const response = await fetch('/api/benchmark', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentResults = result.results;
+                    displayResults(result.results);
+                    updateChart(result.results);
+                    showStatus('Benchmark completed successfully!', 'success');
+                } else {
+                    showStatus('Benchmark failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function runComprehensiveBenchmark() {
+            const runs = parseInt(document.getElementById('comprehensiveRuns').value);
+
+            showLoading(true);
+            showStatus('Running comprehensive benchmark... This may take several minutes.', 'info');
+
+            try {
+                const response = await fetch('/api/benchmark/all', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ runs: runs })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentResults = result.results;
+                    displayResults(result.results);
+                    updateChart(result.results);
+                    showStatus('Comprehensive benchmark completed successfully!', 'success');
+                } else {
+                    showStatus('Benchmark failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayResults(results) {
+            if (results.length === 0) {
+                document.getElementById('results').innerHTML = '<p>No results to display.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>Algorithm</th>';
+            html += '<th>Array Type</th>';
+            html += '<th>Size</th>';
+            html += '<th>Mean Duration</th>';
+            html += '<th>Std Deviation</th>';
+            html += '<th>Min Duration</th>';
+            html += '<th>Max Duration</th>';
+            html += '<th>Memory Used</th>';
+            html += '<th>Runs</th>';
+            html += '</tr></thead><tbody>';
+
+            results.forEach(result => {
+                html += '<tr>';
+                html += `<td>${result.algorithm}</td>`;
+                html += `<td>${result.arrayType}</td>`;
+                html += `<td>${result.size.toLocaleString()}</td>`;
+                html += `<td>${formatDuration(result.meanDuration)}</td>`;
+                html += `<td>${formatDuration(result.stdDeviation)}</td>`;
+                html += `<td>${formatDuration(result.minDuration)}</td>`;
+                html += `<td>${formatDuration(result.maxDuration)}</td>`;
+                html += `<td>${formatBytes(result.memoryUsed)}</td>`;
+                html += `<td>${result.runs}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('results').innerHTML = html;
+        }
+
+        function updateChart(results) {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            const algorithms = [...new Set(results.map(r => r.algorithm))];
+            const sizes = [...new Set(results.map(r => r.size))].sort((a, b) => a - b);
+            
+            const datasets = algorithms.map((algorithm, index) => {
+                const algorithmResults = results.filter(r => r.algorithm === algorithm && r.arrayType === 'Random');
+                const data = sizes.map(size => {
+                    const result = algorithmResults.find(r => r.size === size);
+                    return result ? result.meanDuration / 1000000 : 0; // Convert to milliseconds
+                });
+
+                return {
+                    label: algorithm,
+                    data: data,
+                    borderColor: `hsl(${index * 360 / algorithms.length}, 70%, 50%)`,
+                    backgroundColor: `hsla(${index * 360 / algorithms.length}, 70%, 50%, 0.1)`,
+                    tension: 0.1
+                };
+            });
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sizes.map(s => s.toLocaleString()),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Array Size'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Duration (ms)'
+                            },
+                            type: 'logarithmic'
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Algorithm Performance Comparison'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatDuration(nanoseconds) {
+            if (nanoseconds < 1000) {
+                return nanoseconds.toFixed(2) + ' ns';
+            } else if (nanoseconds < 1000000) {
+                return (nanoseconds / 1000).toFixed(2) + ' μs';
+            } else if (nanoseconds < 1000000000) {
+                return (nanoseconds / 1000000).toFixed(2) + ' ms';
+            } else {
+                return (nanoseconds / 1000000000).toFixed(2) + ' s';
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function exportCSV() {
+            try {
+                const response = await fetch('/api/export/csv');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'benchmark_results.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    showStatus('CSV exported successfully!', 'success');
+                } else {
+                    showStatus('Export failed: No results to export', 'error');
+                }
+            } catch (error) {
+                showStatus('Export error: ' + error.message, 'error');
+            }
+        }
+
+        async function exportMarkdown() {
+            try {
+                const response = await fetch('/api/export/md');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'benchmark_results.md';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    showStatus('Markdown exported successfully!', 'success');
+                } else {
+                    showStatus('Export failed: No results to export', 'error');
+                }
+            } catch (error) {
+                showStatus('Export error: ' + error.message, 'error');
+            }
+        }
+
+        async function clearResults() {
+            try {
+                const response = await fetch('/api/clear', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    currentResults = [];
+                    document.getElementById('results').innerHTML = '<p>No results to display.</p>';
+                    if (chart) {
+                        chart.destroy();
+                        chart = null;
+                    }
+                    showStatus('Results cleared successfully!', 'success');
+                } else {
+                    showStatus('Clear failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showStatus('Clear error: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

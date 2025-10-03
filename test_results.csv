@@ -1,0 +1,2 @@
+Algorithm,Array Type,Size,Mean Duration (ns),Std Deviation (ns),Min Duration (ns),Max Duration (ns),Memory Used (bytes),Runs
+quick_sort,Random,1000,60954,92000,60740,61169,8192,2
